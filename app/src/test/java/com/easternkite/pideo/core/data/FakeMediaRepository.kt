@@ -1,0 +1,56 @@
+package com.easternkite.pideo.core.data
+
+import com.easternkite.pideo.core.common.Result
+import com.easternkite.pideo.core.network.model.image.ImageDocument
+import com.easternkite.pideo.core.network.model.video.VideoDocument
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
+class FakeMediaRepository : MediaRepository {
+    override suspend fun getPictureData(
+        sort: String,
+        size: Int
+    ): Flow<Result> {
+        return flow {
+            val mock = ImageDocument(
+                collection = "mock",
+                thumbnailUrl = "mock",
+                imageUrl = "mock",
+                width = 100,
+                height = 100,
+                displaySiteName = "mock",
+                docUrl = "mock",
+                datetime = "mock"
+            )
+            emit(Result.Loading)
+            delay(1000L)
+            emit(Result.Success(listOf(mock)))
+        }
+    }
+
+    override suspend fun getVideoData(
+        sort: String,
+        size: Int
+    ): Flow<Result> {
+        return flow {
+            val mock = VideoDocument(
+                title = "mock",
+                playTime = 100,
+                thumbnail = "mock",
+                url = "mock",
+                datetime = "mock",
+                author = "mock"
+            )
+            emit(Result.Loading)
+            delay(1000L)
+            emit(Result.Success(listOf(mock)))
+        }
+    }
+
+    override suspend fun putQuery(query: String) {}
+
+    override suspend fun nextPage() {}
+
+    override suspend fun refresh() {}
+}

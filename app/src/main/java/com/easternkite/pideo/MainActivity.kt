@@ -17,7 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.easternkite.pideo.core.network.PideoApi
-import com.easternkite.pideo.ui.theme.PideoTheme
+import com.easternkite.pideo.core.ui.theme.PideoTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
