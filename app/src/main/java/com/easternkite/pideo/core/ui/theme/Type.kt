@@ -1,4 +1,4 @@
-package com.easternkite.pideo.ui.theme
+package com.easternkite.pideo.core.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

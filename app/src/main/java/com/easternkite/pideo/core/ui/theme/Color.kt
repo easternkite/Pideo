@@ -1,4 +1,4 @@
-package com.easternkite.pideo.ui.theme
+package com.easternkite.pideo.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
