@@ -11,7 +11,7 @@ class FakeMediaRepository : MediaRepository {
     override suspend fun getPictureData(
         sort: String,
         size: Int
-    ): Flow<Result> {
+    ): Flow<Result<List<ImageDocument>>> {
         return flow {
             val mock = ImageDocument(
                 collection = "mock",
@@ -21,7 +21,7 @@ class FakeMediaRepository : MediaRepository {
                 height = 100,
                 displaySiteName = "mock",
                 docUrl = "mock",
-                datetime = "mock"
+                datetime = "2017-06-14T00:00:00.000+09:00"
             )
             emit(Result.Loading)
             delay(1000L)
@@ -32,19 +32,19 @@ class FakeMediaRepository : MediaRepository {
     override suspend fun getVideoData(
         sort: String,
         size: Int
-    ): Flow<Result> {
+    ): Flow<Result<List<VideoDocument>>> {
         return flow {
             val mock = VideoDocument(
                 title = "mock",
                 playTime = 100,
                 thumbnail = "mock",
                 url = "mock",
-                datetime = "mock",
+                datetime = "2017-06-13T00:00:00.000+09:00",
                 author = "mock"
             )
             emit(Result.Loading)
             delay(1000L)
-            emit(Result.Success(listOf(mock)))
+            emit(Result.Success(listOf(mock, mock.copy(datetime = "2025-06-14T00:00:00.000+09:00"))))
         }
     }
 

@@ -1,7 +1,9 @@
 package com.easternkite.pideo.core.common
 
-sealed class Result {
-    data class Success<T>(val data: T) : Result()
-    data class Error(val exception: Throwable) : Result()
-    data object Loading : Result()
+sealed class Result<out T> {
+    data class Success<T>(val data: T) : Result<T>()
+    data class Error(val exception: Throwable) : Result<Nothing>()
+    data object Loading : Result<Nothing>()
 }
+
+val <T> Result<T>.dataOrNull get() = (this as? Result.Success)?.data

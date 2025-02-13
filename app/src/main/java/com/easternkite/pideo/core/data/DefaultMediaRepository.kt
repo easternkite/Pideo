@@ -2,6 +2,8 @@ package com.easternkite.pideo.core.data
 
 import com.easternkite.pideo.core.common.Result
 import com.easternkite.pideo.core.network.PideoApi
+import com.easternkite.pideo.core.network.model.image.ImageDocument
+import com.easternkite.pideo.core.network.model.video.VideoDocument
 import com.easternkite.pideo.core.network.onFailure
 import com.easternkite.pideo.core.network.onSuccess
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,7 +29,7 @@ class DefaultMediaRepository @Inject constructor(
         transform = { page, query, result -> Triple(page, query, result) }
     )
 
-    override suspend fun getPictureData(sort: String, size: Int): Flow<Result> {
+    override suspend fun getPictureData(sort: String, size: Int): Flow<Result<List<ImageDocument>>> {
         return combinedFlow.flatMapLatest { (page, query) ->
             flow {
                 emit(Result.Loading)
@@ -45,7 +47,7 @@ class DefaultMediaRepository @Inject constructor(
         }
     }
 
-    override suspend fun getVideoData(sort: String, size: Int): Flow<Result> {
+    override suspend fun getVideoData(sort: String, size: Int): Flow<Result<List<VideoDocument>>> {
         return combinedFlow.flatMapLatest { (page, query) ->
             flow {
                 emit(Result.Loading)
