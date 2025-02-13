@@ -21,8 +21,8 @@ jobs:
 
       - name: Insert Empty key file
         run : |
-          echo APP_KEY = aaabbb > local.properties
-          echo REST_API_KEY = aaabbb > local.properties
+          echo APP_KEY = \"aaabbb\" > local.properties
+          echo REST_API_KEY = \"aaabbb\" > local.properties
 
       - name: Check Test
         run: ./gradlew test --no-configuration-cache
