@@ -3,6 +3,8 @@ package com.easternkite.pideo.feature.list
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,14 +22,17 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,7 +93,8 @@ fun MediaListingScreen(
                 onQueryChange = {
                     inputState = it
                     viewModel.updateQuery(it)
-                }
+                },
+                onClearText = { viewModel.updateQuery("") }
             )
         },
     ) { padding ->
@@ -211,7 +216,10 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     query: String = "",
     onQueryChange: (String) -> Unit = {},
+    onClearText: () -> Unit = {},
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
@@ -228,11 +236,16 @@ fun SearchBar(
             contentDescription = "Search Icon"
         )
         BasicTextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.weight(1f),
             maxLines = 1,
+            singleLine = true,
             value = query,
+            interactionSource = interactionSource,
             onValueChange = onQueryChange,
         )
+        if (isFocused) {
+            ClearIcon(onClearText = onClearText)
+        }
     }
 }
 
@@ -263,6 +276,27 @@ fun ScrollToTopButton(
                 contentDescription = "ScrollToTop Icon"
             )
         }
+    }
+}
+
+@Composable
+fun ClearIcon(
+    modifier: Modifier = Modifier,
+    onClearText: () -> Unit = {},
+) {
+    IconButton(
+        onClick = onClearText,
+        modifier = modifier
+        .clip(CircleShape)
+        .size(24.dp)
+        .background(MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        Icon(
+            modifier = Modifier.size(18.dp),
+            imageVector = Icons.Default.Clear,
+            tint = MaterialTheme.colorScheme.primary,
+            contentDescription = "Clear Icon"
+        )
     }
 }
 
@@ -305,4 +339,10 @@ fun ScrollToTopButtonPreview() {
     ) {
         ScrollToTopButton()
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun ClearIconPreview() {
+    ClearIcon()
 }

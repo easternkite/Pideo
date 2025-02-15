@@ -4,6 +4,7 @@ import com.easternkite.pideo.core.common.Result
 import com.easternkite.pideo.core.network.PideoApi
 import com.easternkite.pideo.core.network.model.image.ImageDocument
 import com.easternkite.pideo.core.network.model.video.VideoDocument
+import com.easternkite.pideo.core.network.onFailure
 import com.easternkite.pideo.core.network.onSuccess
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -50,6 +51,8 @@ class DefaultMediaRepository @Inject constructor(
 
                 result?.onSuccess {
                     emit(Result.Success(it.documents))
+                }?.onFailure {
+                    emit(Result.Error(it))
                 }
             }
         }
@@ -72,6 +75,8 @@ class DefaultMediaRepository @Inject constructor(
 
                 result?.onSuccess {
                     emit(Result.Success(it.documents))
+                }?.onFailure {
+                    emit(Result.Error(it))
                 }
             }
         }
