@@ -49,7 +49,6 @@ fun PdLazyList(
     content: LazyListScope.() -> Unit
 ) {
     PullToRefreshBox(
-        modifier = modifier,
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         state = pullToRefreshState,
@@ -57,6 +56,7 @@ fun PdLazyList(
     ) {
         if (isVertical) {
             LazyColumn(
+                modifier = modifier,
                 state = listState,
                 contentPadding = contentPadding,
                 userScrollEnabled = userScrollEnabled,
@@ -64,6 +64,7 @@ fun PdLazyList(
             )
         } else {
             LazyRow(
+                modifier = modifier,
                 state = listState,
                 contentPadding = contentPadding,
                 userScrollEnabled = userScrollEnabled,

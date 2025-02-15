@@ -12,12 +12,19 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.easternkite.pideo.ConnectivityContainer
 import com.easternkite.pideo.ConnectivityIndicator
+import com.easternkite.pideo.PdConnectivity
 import com.easternkite.pideo.rememberPdConnectivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -59,6 +66,8 @@ fun PideoTheme(
     }
     val pdConnectivity = rememberPdConnectivity()
     val state by pdConnectivity.networkState.collectAsState()
+    var isIndicatorVisible by rememberSaveable { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
     ConnectivityContainer(
         connectivity = pdConnectivity,
@@ -68,8 +77,19 @@ fun PideoTheme(
                     .fillMaxWidth()
                     .align(Alignment.BottomStart)
                     .systemBarsPadding(),
-                state = state
+                state = state,
+                isVisible = isIndicatorVisible
             )
+        },
+        onChanged = {
+            if (it == PdConnectivity.NetworkState.CONNECTED) {
+                scope.launch {
+                    delay(1000L)
+                    isIndicatorVisible = false
+                }
+            } else {
+                isIndicatorVisible = true
+            }
         }
     ) {
         MaterialTheme(
