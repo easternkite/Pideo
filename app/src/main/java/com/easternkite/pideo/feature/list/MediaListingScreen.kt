@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,10 +26,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,17 +52,18 @@ import java.util.Locale
 @Composable
 fun MediaListingScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: MediaListingViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val query by viewModel.recentSearchQuery.collectAsStateWithLifecycle("")
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     var inputState by rememberSaveable(query) { mutableStateOf(query) }
+    val isCenterLoading by remember { derivedStateOf { uiState.isLoading && !isRefreshing } }
+
     Scaffold(
         modifier = modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(10.dp),
+            .padding(horizontal = 10.dp),
         topBar = {
             SearchBar(
                 modifier = Modifier
@@ -69,7 +76,10 @@ fun MediaListingScreen(
                     viewModel.updateQuery(it)
                 }
             )
-        }
+        },
+        contentWindowInsets = ScaffoldDefaults
+            .contentWindowInsets
+            .exclude(WindowInsets.systemBars)
     ) { padding ->
         Box(
             modifier = Modifier
@@ -78,7 +88,7 @@ fun MediaListingScreen(
         ) {
             PdLazyList(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = contentPadding,
+                contentPadding = PaddingValues(bottom = 10.dp),
                 isRefreshing = isRefreshing,
                 onRefresh = viewModel::refreshList
             ) {
@@ -109,7 +119,7 @@ fun MediaListingScreen(
                 }
             }
 
-            if (uiState.isLoading) {
+            if (isCenterLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }

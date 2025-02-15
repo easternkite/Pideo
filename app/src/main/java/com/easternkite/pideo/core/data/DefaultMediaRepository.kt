@@ -1,30 +1,19 @@
 package com.easternkite.pideo.core.data
 
-import android.util.Log
 import com.easternkite.pideo.core.common.Result
 import com.easternkite.pideo.core.network.PideoApi
 import com.easternkite.pideo.core.network.model.image.ImageDocument
 import com.easternkite.pideo.core.network.model.video.VideoDocument
-import com.easternkite.pideo.core.network.onFailure
 import com.easternkite.pideo.core.network.onSuccess
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
@@ -48,15 +37,19 @@ class DefaultMediaRepository @Inject constructor(
         return combinedFlow.flatMapLatest { (page, query) ->
             flow {
                 emit(Result.Loading)
-                api.searchImage(
-                    query = query,
-                    sort = sort,
-                    page = page,
-                    size = size
-                ).onSuccess {
-                    emit(Result.Success(it.documents))
+                val result = runCatching {
+                    api.searchImage(
+                        query = query,
+                        sort = sort,
+                        page = page,
+                        size = size
+                    )
                 }.onFailure {
                     emit(Result.Error(it))
+                }.getOrNull()
+
+                result?.onSuccess {
+                    emit(Result.Success(it.documents))
                 }
             }
         }
@@ -66,15 +59,19 @@ class DefaultMediaRepository @Inject constructor(
         return combinedFlow.flatMapLatest { (page, query) ->
             flow {
                 emit(Result.Loading)
-                api.searchVideo(
-                    query = query,
-                    sort = sort,
-                    page = page,
-                    size = size
-                ).onSuccess {
-                    emit(Result.Success(it.documents))
+                val result = runCatching {
+                    api.searchVideo(
+                        query = query,
+                        sort = sort,
+                        page = page,
+                        size = size
+                    )
                 }.onFailure {
                     emit(Result.Error(it))
+                }.getOrNull()
+
+                result?.onSuccess {
+                    emit(Result.Success(it.documents))
                 }
             }
         }
