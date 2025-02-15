@@ -1,6 +1,8 @@
 package com.easternkite.pideo.feature.list
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,9 +19,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,11 +36,14 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -45,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.easternkite.pideo.core.ui.component.PdLazyList
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -54,11 +62,18 @@ fun MediaListingScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
     viewModel: MediaListingViewModel = hiltViewModel(),
 ) {
+    val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val listState = rememberLazyListState()
     val query by viewModel.recentSearchQuery.collectAsStateWithLifecycle("")
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     var inputState by rememberSaveable(query) { mutableStateOf(query) }
     val isCenterLoading by remember { derivedStateOf { uiState.isLoading && !isRefreshing } }
+    val showScrollToTopButton by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0
+        }
+    }
 
     Scaffold(
         modifier = modifier
@@ -91,7 +106,8 @@ fun MediaListingScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 10.dp),
                 isRefreshing = isRefreshing,
-                onRefresh = viewModel::refreshList
+                onRefresh = viewModel::refreshList,
+                listState = listState
             ) {
                 if (uiState.mediaList.isEmpty() && !uiState.isLoading) {
                     item {
@@ -137,6 +153,20 @@ fun MediaListingScreen(
             if (isCenterLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
+
+            ScrollToTopButton(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .systemBarsPadding()
+                    .padding(bottom = 10.dp)
+                ,
+                onClick = {
+                    scope.launch {
+                        listState.animateScrollToItem(0)
+                    }
+                },
+                isVisible = showScrollToTopButton
+            )
         }
     }
 }
@@ -207,6 +237,36 @@ fun SearchBar(
 }
 
 @Composable
+fun ScrollToTopButton(
+    modifier: Modifier = Modifier,
+    isVisible: Boolean = false,
+    onClick: () -> Unit = {},
+) {
+    val shape = RoundedCornerShape(10.dp)
+    AnimatedVisibility(
+        visible = isVisible,
+        modifier = modifier
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(shape)
+                .size(48.dp)
+                .background(MaterialTheme.colorScheme.primary)
+                .clickable { onClick() }
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(36.dp)
+                    .align(Alignment.Center),
+                imageVector = Icons.Default.KeyboardArrowUp,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                contentDescription = "ScrollToTop Icon"
+            )
+        }
+    }
+}
+
+@Composable
 @Preview(showBackground = true)
 fun MediaCellPreview() {
     MediaCell(
@@ -235,3 +295,14 @@ fun SearchBarPreview() {
     }
 }
 
+@Composable
+@Preview(showBackground = true)
+fun ScrollToTopButtonPreview() {
+    Column(
+        modifier = Modifier
+            .background(Color.White)
+            .padding(5.dp)
+    ) {
+        ScrollToTopButton()
+    }
+}
