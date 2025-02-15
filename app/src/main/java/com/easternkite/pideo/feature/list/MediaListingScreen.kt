@@ -11,23 +11,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,10 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import kotlinx.coroutines.launch
+import com.easternkite.pideo.core.ui.component.PdLazyList
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MediaListingScreen(
     modifier: Modifier = Modifier.fillMaxSize(),
@@ -51,58 +51,67 @@ fun MediaListingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val query by viewModel.recentSearchQuery.collectAsStateWithLifecycle("")
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
     var inputState by rememberSaveable(query) { mutableStateOf(query) }
-
-    Box(
+    Scaffold(
         modifier = modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(10.dp)
-    ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = contentPadding
+            .padding(10.dp),
+        topBar = {
+            SearchBar(
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp),
+                query = inputState,
+                onQueryChange = {
+                    inputState = it
+                    viewModel.updateQuery(it)
+                }
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(padding)
         ) {
-            item {
-                SearchBar(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp),
-                    query = inputState,
-                    onQueryChange = {
-                        inputState = it
-                        viewModel.updateQuery(it)
-                    }
-                )
-            }
-            items(uiState.mediaList) { media ->
-                MediaCell(
-                    title = media.name,
-                    date = SimpleDateFormat(
-                        "yyyy-MM-dd HH:mm:ss",
-                        Locale.KOREA
-                    ).format(media.dateTime),
-                    modifier = Modifier.fillMaxWidth(),
-                    image = {
-                        AsyncImage(
-                            modifier = Modifier.fillMaxSize(),
-                            model = media.imageUrl,
-                            contentDescription = "media image",
-                            contentScale = ContentScale.Crop
+            PdLazyList(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = contentPadding,
+                isRefreshing = isRefreshing,
+                onRefresh = viewModel::refreshList
+            ) {
+                items(uiState.mediaList) { media ->
+                    MediaCell(
+                        title = media.name,
+                        date = SimpleDateFormat(
+                            "yyyy-MM-dd HH:mm:ss",
+                            Locale.KOREA
+                        ).format(media.dateTime),
+                        modifier = Modifier.fillMaxWidth(),
+                        image = {
+                            AsyncImage(
+                                modifier = Modifier.fillMaxSize(),
+                                model = media.imageUrl,
+                                contentDescription = "media image",
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    )
+                    if (uiState.mediaList.last() != media) {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp)
                         )
                     }
-                )
-                if (uiState.mediaList.last() != media) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(10.dp)
-                    )
                 }
             }
-        }
 
-        if (uiState.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
         }
     }
 }

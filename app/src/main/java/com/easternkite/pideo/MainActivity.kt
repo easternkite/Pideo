@@ -32,12 +32,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PideoTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MediaListingScreen(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = innerPadding
-                    )
-                }
+                MediaListingScreen(
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }

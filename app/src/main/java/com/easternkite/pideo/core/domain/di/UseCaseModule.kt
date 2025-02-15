@@ -3,6 +3,7 @@ package com.easternkite.pideo.core.domain.di
 import com.easternkite.pideo.core.data.MediaRepository
 import com.easternkite.pideo.core.domain.GetMediaListUseCase
 import com.easternkite.pideo.core.domain.PutQueryUseCase
+import com.easternkite.pideo.core.domain.entity.RefreshUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,4 +21,8 @@ object UseCaseModule {
     @Provides
     @Singleton
     fun providesPutQueryUseCase(repository: MediaRepository) = PutQueryUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun providesRefreshUseCase(repository: MediaRepository) = RefreshUseCase(repository)
 }

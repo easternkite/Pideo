@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.Flow
 interface MediaRepository {
     suspend fun getPictureData(
         sort: String = "recency",
-        size: Int = 20
+        size: Int = 15
     ): Flow<Result<List<ImageDocument>>>
 
     suspend fun getVideoData(
         sort: String = "recency",
-        size: Int = 30
+        size: Int = 15
     ): Flow<Result<List<VideoDocument>>>
 
     suspend fun putQuery(query: String)
