@@ -16,9 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
 import com.easternkite.pideo.core.network.PideoApi
 import com.easternkite.pideo.core.ui.theme.PideoTheme
 import com.easternkite.pideo.feature.list.MediaListingScreen
+import com.easternkite.pideo.feature.list.navigation.MediaListingRoute
+import com.easternkite.pideo.feature.list.navigation.mediaListingRoute
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -32,9 +36,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PideoTheme {
-                MediaListingScreen(
-                    modifier = Modifier.fillMaxSize(),
-                )
+                val controller = rememberNavController()
+                NavHost(
+                    navController = controller,
+                    startDestination = MediaListingRoute
+                ) {
+                    mediaListingRoute()
+                }
             }
         }
     }
