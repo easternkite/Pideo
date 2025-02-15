@@ -1,5 +1,5 @@
 [versions]
-agp = "8.8.0"
+agp = "8.8.1"
 kotlin = "2.1.10"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -7,13 +7,14 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.0"
-composeBom = "2025.01.01"
+composeBom = "2025.02.00"
 hilt = "2.55"
+androidx-hilt = "1.2.0"
 ksp = "2.1.10-1.0.29"
 coil = "3.1.0"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
-navigation = "2.8.6"
+navigation = "2.8.7"
 coroutine = "1.10.1"
 turbine = "1.2.0"
 
@@ -39,6 +40,7 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 
 # Coil
@@ -55,6 +57,7 @@ mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", versio
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 
 [bundles]
+hilt = ["hilt-android", "hilt-navigation-compose"]
 coil = ["coil-compose", "coil-network-okhttp"]
 retrofit = ["retrofit", "retrofit-converter-gson", "logging-interceptor"]
 compose = ["androidx-ui", "androidx-ui-graphics", "androidx-ui-tooling-preview", "androidx-material3"]

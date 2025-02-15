@@ -18,6 +18,8 @@ interface MediaRepository {
 
     suspend fun putQuery(query: String)
 
+    suspend fun getQuery(): Flow<String>
+
     suspend fun nextPage()
 
     suspend fun refresh()

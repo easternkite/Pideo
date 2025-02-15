@@ -78,7 +78,7 @@ dependencies {
     androidTestImplementation(libs.bundles.android.test)
     debugImplementation(libs.bundles.android.debug)
 
-    implementation(libs.hilt.android)
+    implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
 
     implementation(libs.bundles.coil)

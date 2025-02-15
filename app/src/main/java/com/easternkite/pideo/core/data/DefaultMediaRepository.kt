@@ -1,33 +1,48 @@
 package com.easternkite.pideo.core.data
 
+import android.util.Log
 import com.easternkite.pideo.core.common.Result
 import com.easternkite.pideo.core.network.PideoApi
 import com.easternkite.pideo.core.network.model.image.ImageDocument
 import com.easternkite.pideo.core.network.model.video.VideoDocument
 import com.easternkite.pideo.core.network.onFailure
 import com.easternkite.pideo.core.network.onSuccess
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DefaultMediaRepository @Inject constructor(
-    private val api: PideoApi
+    private val api: PideoApi,
 ) : MediaRepository {
     private val pageFlow = MutableStateFlow(1)
     private val queryFlow = MutableStateFlow("")
     private val refreshFlow = MutableStateFlow(false)
 
+    @OptIn(FlowPreview::class)
     private val combinedFlow = combine(
         pageFlow,
         queryFlow,
         refreshFlow,
         transform = { page, query, result -> Triple(page, query, result) }
-    )
+    ).debounce(300L)
 
     override suspend fun getPictureData(sort: String, size: Int): Flow<Result<List<ImageDocument>>> {
         return combinedFlow.flatMapLatest { (page, query) ->
@@ -66,7 +81,13 @@ class DefaultMediaRepository @Inject constructor(
     }
 
     override suspend fun putQuery(query: String) {
-        queryFlow.emit(query)
+        queryFlow.update { query }
+    }
+
+    override suspend fun getQuery(): Flow<String> {
+        return flow {
+            emitAll(queryFlow)
+        }
     }
 
     override suspend fun nextPage() {

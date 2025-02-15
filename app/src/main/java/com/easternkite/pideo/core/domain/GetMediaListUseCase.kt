@@ -18,7 +18,8 @@ class GetMediaListUseCase @Inject constructor(
     private val mediaRepository: MediaRepository
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke() = flow {
+    operator fun invoke(initialQuery: String = "Video") = flow {
+        mediaRepository.putQuery(initialQuery)
         val result = combine(
             mediaRepository.getPictureData(),
             mediaRepository.getVideoData(),

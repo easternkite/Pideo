@@ -5,9 +5,13 @@ import com.easternkite.pideo.core.network.model.image.ImageDocument
 import com.easternkite.pideo.core.network.model.video.VideoDocument
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 
 class FakeMediaRepository : MediaRepository {
+    private val queryFlow = MutableStateFlow("")
+
     override suspend fun getPictureData(
         sort: String,
         size: Int
@@ -48,7 +52,9 @@ class FakeMediaRepository : MediaRepository {
         }
     }
 
-    override suspend fun putQuery(query: String) {}
+    override suspend fun putQuery(query: String) { queryFlow.emit(query) }
+
+    override suspend fun getQuery(): Flow<String> { return queryFlow.filter { it.isNotEmpty() } }
 
     override suspend fun nextPage() {}
 

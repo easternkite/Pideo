@@ -18,12 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.easternkite.pideo.core.network.PideoApi
 import com.easternkite.pideo.core.ui.theme.PideoTheme
+import com.easternkite.pideo.feature.list.MediaListingScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject lateinit var api: PideoApi
+    @Inject
+    lateinit var api: PideoApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,22 +33,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             PideoTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    var response by remember { mutableStateOf("") }
-                    LaunchedEffect(Unit) {
-                        val result = api.searchImage(
-                            query = "개발자",
-                            sort = "recency",
-                            page = 1,
-                            size = 20
-                        )
-
-                        if (result.isSuccessful) {
-                            response = result.body()?.documents?.firstOrNull()?.docUrl ?: ""
-                        }
-                    }
-                    Greeting(
-                        name = response,
-                        modifier = Modifier.padding(innerPadding)
+                    MediaListingScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = innerPadding
                     )
                 }
             }
